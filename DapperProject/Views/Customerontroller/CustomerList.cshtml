@@ -1,0 +1,27 @@
+﻿@model List<DapperProject.Dtos.CustomerDto.ResultCustomerDto>
+@{
+    Layout = null;
+}
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<table class="table table-bordered">
+    <tr>
+        <th>#</th>
+        <th>Müşteri Adı</th>
+        <th>Müşteri Soyadı</th>
+        <th>Şehir</th>
+    </tr>
+    @foreach(var item in Model)
+    {
+        <tr>
+            <td>@item.CustomerId</td>
+            <td>@item.CustomerName</td>
+            <td>@item.CustomerSurname</td>
+            <td>@item.CustomerCity</td>
+            <td><a href="/Customer/DeleteCustomer/@item.CustomerId" class="btn btn-danger">Sil</a></td>
+            <td><a href="/Customer/UpdateCustomer/@item.CustomerId" class="btn btn-danger">Güncelle</a></td>
+        </tr>
+    }
+</table>
+<a href="/Customer/CreateCustomer/" class="btn btn-info">Yeni Müşteri Girişi</a>

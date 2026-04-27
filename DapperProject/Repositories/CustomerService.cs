@@ -20,7 +20,7 @@ namespace DapperProject.Repositories
             parameters.Add("@customerName", createCustomerDto.CustomerName);
             parameters.Add("@customerSurname", createCustomerDto.CustomerSurname);
             parameters.Add("@customerCity", createCustomerDto.CustomerCity);
-            var connection = _context.CreateConntection();
+            var connection = _context.CreateConnection();
             await connection.ExecuteAsync(query, parameters);
         }
 
@@ -29,14 +29,14 @@ namespace DapperProject.Repositories
             string query = "Delete From Customers Where Customerıd=@p";
             var parameters = new DynamicParameters();
             parameters.Add("@p", id);
-            var connection = _context.CreateConntection();
+            var connection = _context.CreateConnection();
             await connection.ExecuteAsync(query, parameters);
         }
 
         public async Task<List<ResultCustomerDto>> GetAllCustomersAsync()
         {
             string query = "Select * From Customers";
-            var connection = _context.CreateConntection();
+            var connection = _context.CreateConnection();
             var values = await connection.QueryAsync<ResultCustomerDto>(query);
             return values.ToList();
         }
@@ -46,8 +46,8 @@ namespace DapperProject.Repositories
             string query = "Select * From Customers Where CustomerId=@id";
             var parameters = new DynamicParameters();
             parameters.Add("@id", id);
-            var connection = _context.CreateConntection();
-            var value = await connection.QueryFirstAsync<GetCustomerByIdDto>(query);
+            var connection = _context.CreateConnection();
+            var value = await connection.QueryFirstAsync<GetCustomerByIdDto>(query,parameters);
             return value;
         }
 
@@ -59,7 +59,7 @@ namespace DapperProject.Repositories
             parameters.Add("@customerSurname", updateCustomerDto.CustomerSurname);
             parameters.Add("@customerCity", updateCustomerDto.CustomerCity);
             parameters.Add("@id", updateCustomerDto.CustomerId);
-            var connection = _context.CreateConntection();
+            var connection = _context.CreateConnection();
             await connection.ExecuteAsync(query, parameters);
         }
     }

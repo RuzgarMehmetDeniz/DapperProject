@@ -13,6 +13,10 @@ namespace DapperProject.Context
             _configuration = configuration;
             _connectionString = _configuration.GetConnectionString("connectionkey");
         }
-        public IDbConnection CreateConntection()=> new SqlConnection(_connectionString);
+
+        public IDbConnection CreateConnection()
+        {
+            return new SqlConnection(_connectionString);
+        }
     }
 }
