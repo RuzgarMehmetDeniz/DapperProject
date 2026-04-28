@@ -1,0 +1,151 @@
+﻿<script>
+    /* ---- FİLTRELEME ---- */
+    function filterTable() {
+        var q = document.getElementById('searchInput').value.toLowerCase();
+        var st = document.getElementById('statusFilter').value;
+        var cat = document.getElementById('categoryFilter').value;
+        var rows = document.querySelectorAll('#tableBody tr[data-name]');
+        var visible = 0;
+        rows.forEach(function(row) {
+            var name = row.getAttribute('data-name');
+            var sku = row.getAttribute('data-sku');
+            var status = row.getAttribute('data-status');
+            var category = row.getAttribute('data-category');
+            var show = (!q || name.includes(q) || sku.includes(q))
+                    && (!st || status === st)
+                    && (!cat || category === cat);
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        document.getElementById('resultCount').textContent = visible + ' ürün';
+    }
+
+    /* ---- SİLME: önce onay satırı göster ---- */
+    function askDelete(btn, productName) {
+        /* zaten açık bir onay satırı varsa kapat */
+        var existing = document.querySelector('.confirm-row');
+        if (existing) existing.remove();
+
+        var productRow = btn.closest('tr');
+
+        /* onay satırı oluştur */
+        var confirmRow = document.createElement('tr');
+        confirmRow.className = 'confirm-row';
+        confirmRow.innerHTML =
+            '<td colspan="8">' +
+            '<div class="confirm-inner">' +
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--accent-rose);flex-shrink:0"><path d="M8 2l6 12H2L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v3M8 11v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
+            '<span class="confirm-text"><strong>"' + productName + '"</strong> silinsin mi? Bu işlem geri alınamaz.</span>' +
+            '<div class="confirm-actions">' +
+            '<button class="btn btn-ghost btn-sm" onclick="cancelDelete(this)">İptal</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">Evet, Sil</button>' +
+            '</div>' +
+            '</div>' +
+            '</td>';
+
+        /* onay satırını ürün satırının hemen altına ekle */
+        productRow.insertAdjacentElement('afterend', confirmRow);
+
+        /* sayfayı satıra kaydır */
+        confirmRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function cancelDelete(btn) {
+        btn.closest('.confirm-row').remove();
+    }
+
+    function confirmDelete(btn) {
+        var confirmRow = btn.closest('.confirm-row');
+        var productRow = confirmRow.previousElementSibling;
+        var productName = productRow.querySelector('.prod-name').textContent;
+
+        /* animasyonla sil */
+        productRow.classList.add('removing');
+        confirmRow.remove();
+
+        setTimeout(function() {
+            productRow.remove();
+            updateStats();
+            showToast('🗑️', '"' + productName + '" silindi');
+        }, 300);
+    }
+
+    /* ---- İSTATİSTİK GÜNCELLE ---- */
+    function updateStats() {
+        var rows = document.querySelectorAll('#tableBody tr[data-name]');
+        var total = 0, active = 0, draft = 0, out = 0;
+        rows.forEach(function(r) {
+            total++;
+            var s = r.getAttribute('data-status');
+            if (s === 'active') active++;
+            else if (s === 'draft') draft++;
+            else if (s === 'out') out++;
+        });
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statActive').textContent = active;
+        document.getElementById('statDraft').textContent = draft;
+        document.getElementById('statOut').textContent = out;
+        document.getElementById('sidebarCount').textContent = total;
+        document.getElementById('pageSubtitle').textContent = 'Tüm ürünleri yönetin — ' + total + ' ürün listelendi';
+        document.getElementById('resultCount').textContent = total + ' ürün';
+    }
+
+    /* ---- TOPLU SEÇ ---- */
+    function toggleAll(cb) {
+        document.querySelectorAll('.row-cb').forEach(function(c) { c.checked = cb.checked; });
+    }
+
+    /* ---- TOAST ---- */
+    var toastTimer;
+    function showToast(icon, msg) {
+        document.getElementById('toast-icon').textContent = icon;
+        document.getElementById('toast-msg').textContent = msg;
+        document.getElementById('toast').classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(hideToast, 3500);
+    }
+    function hideToast() {
+        document.getElementById('toast').classList.remove('show');
+    }
+
+    /* modal dışına tıklayınca kapat */
+    document.getElementById('prodModal').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
+
+    /* mobil menü */
+    document.getElementById('menuToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+        function exportToExcel() {
+        // Ürün verilerinizi buraya koyun — API'den veya mevcut tablodan alabilirsiniz
+        const data = products.map(p => ({
+            "ID":           p.id,
+            "Ürün Adı":     p.name,
+            "Kategori":     p.category,
+            "Fiyat":        p.price,
+            "Stok":         p.stock,
+            "Durum":        p.status,
+            "Oluşturulma":  p.createdAt,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Sütun genişliklerini ayarla
+        ws['!cols'] = [
+            { wch: 8 },   // ID
+            { wch: 30 },  // Ürün Adı
+            { wch: 20 },  // Kategori
+            { wch: 12 },  // Fiyat
+            { wch: 10 },  // Stok
+            { wch: 12 },  // Durum
+            { wch: 20 },  // Oluşturulma
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Ürünler");
+
+        // Dosyayı indir
+        XLSX.writeFile(wb, `urunler_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+</script>

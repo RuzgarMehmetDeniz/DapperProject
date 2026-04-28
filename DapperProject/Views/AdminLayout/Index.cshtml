@@ -1,0 +1,50 @@
+﻿@{
+	Layout = null;
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!DOCTYPE html>
+
+<html lang="tr">
+
+        @await Component.InvokeAsync("_AdminLayoutHeadComponentPartial")
+
+<body>
+
+	<div class="glow-mesh"></div>
+
+	<!-- TOAST -->
+
+	<div class="toast" id="toast">
+		<span class="toast-icon" id="toast-icon">✓</span>
+		<span class="toast-msg" id="toast-msg">İşlem tamamlandı</span>
+		<span class="toast-close" onclick="hideToast()">✕</span>
+	</div>
+
+	<div class="app-shell">
+
+		<!-- SIDEBAR -->
+		@await Component.InvokeAsync("_AdminLayoutSidebarComponentPartial")
+
+		<!-- MAIN -->
+
+		<div class="main-content">
+
+			@await Component.InvokeAsync("_AdminLayoutNavbarComponentPartial")
+
+			<div class="page-content">
+
+				@RenderBody()
+
+			</div>
+
+		</div>
+
+	</div>
+
+	@await Component.InvokeAsync("_AdminLayoutScriptComponentPartial")
+
+</body>
+
+</html>

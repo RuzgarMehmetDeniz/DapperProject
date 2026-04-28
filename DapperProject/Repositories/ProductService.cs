@@ -1,6 +1,6 @@
-﻿using Dapper;
-using DapperProject.Context;
+﻿using DapperProject.Context;
 using DapperProject.Dtos.ProductDtos;
+using Dapper;
 
 namespace DapperProject.Repositories
 {
@@ -13,56 +13,41 @@ namespace DapperProject.Repositories
             _context = context;
         }
 
-        public async Task CreateProductAsync(CreateProductDto createProductDto)
-        {
-            string query = "Insert Into Products (ProductName,Stock,Price,CategoryId) Values (@productname,@stock,@price,@categoryId)";
-            var parameters = new DynamicParameters();
-            parameters.Add("@productname", createProductDto.ProductName);
-            parameters.Add("@stock", createProductDto.Stock);
-            parameters.Add("@price", createProductDto.Price);
-            parameters.Add("@categoryId", createProductDto.CategoryId);
-            var connection = _context.CreateConnection();
-            await connection.ExecuteAsync(query, parameters);
-        }
-
-        public async Task DeleteProductAsync(int productId)
-        {
-            string query = "Delete From Product Where ProductId=@id";
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", productId);
-            var connection = _context.CreateConnection();
-            await connection.ExecuteAsync(query, parameters);
-        }
-
         public async Task<List<ResultProductDto>> GetAllProductAsync()
         {
-            string query = "Select * From Products";
-            var connection = _context.CreateConnection();
-            var values = await connection.QueryAsync<ResultProductDto>(query);
-            return values.ToList();
+            string query = "SELECT ProductID, Name, Stock, CategoryID, Price, Brand FROM Product";
+            using var connection = _context.CreateConnection();
+            var result = await connection.QueryAsync<ResultProductDto>(query);
+            return result.ToList();
         }
 
-        public async Task<GetProrudctDto> GetProductByIdAsync(int productId)
+        public async Task<GetByIdProductDto> GetByIdProductAsync(int id)
         {
-            string query = "Select * From Products Where ProductId=@id";
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", productId);
-            var connection = _context.CreateConnection();
-            var values = await connection.QueryFirstAsync<GetProrudctDto>(query, parameters);
-            return values;
+            string query = "SELECT ProductID, Name, Stock, CategoryID, Price, Brand FROM Product WHERE ProductID = @ProductID";
+            using var connection = _context.CreateConnection();
+            var result = await connection.QueryFirstOrDefaultAsync<GetByIdProductDto>(query, new { ProductID = id });
+            return result;
         }
 
-        public async Task UpdateProductAsync(UpdateProductDto updateProductDto)
+        public async Task CreateProductAsync(CreateProductDto productDto)
         {
-          string query= "Update Products Set ProductName=@productname,Stock=@stock,Price=@price,CategoryId=@categoryId Where ProductId=@productId";
-            var parameters = new DynamicParameters();
-            parameters.Add("@productId", updateProductDto.ProductId);
-            parameters.Add("@productname", updateProductDto.ProductName);
-            parameters.Add("@stock", updateProductDto.Stock);
-            parameters.Add("@price", updateProductDto.Price);
-            parameters.Add("@categoryId", updateProductDto.CategoryId);
-            var connection = _context.CreateConnection();
-            await connection.ExecuteAsync(query, parameters);
+            string query = "INSERT INTO Product (Name, Stock, CategoryID, Price, Brand) VALUES (@Name, @Stock, @CategoryID, @Price, @Brand)";
+            using var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(query, productDto);
+        }
+
+        public async Task UpdateProductAsync(UpdateProductDto productDto)
+        {
+            string query = "UPDATE Product SET Name = @Name, Stock = @Stock, CategoryID = @CategoryID, Price = @Price, Brand = @Brand WHERE ProductID = @ProductID";
+            using var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(query, productDto);
+        }
+
+        public async Task DeleteProductAsync(int id)
+        {
+            string query = "DELETE FROM Product WHERE ProductID = @ProductID";
+            using var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(query, new { ProductID = id });
         }
     }
 }

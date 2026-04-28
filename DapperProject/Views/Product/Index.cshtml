@@ -1,0 +1,243 @@
+﻿@model List<ResultProductDto>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/AdminLayout/Index.cshtml";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int totalCount = ViewBag.TotalCount;
+    string search = ViewBag.Search ?? "";
+}
+
+@await Component.InvokeAsync("_AdminLayoutHeaderComponentPartial")
+@await Component.InvokeAsync("_AdminLayoutCardComponentPartial")
+
+<div class="card">
+    <div class="table-toolbar">
+        <div class="toolbar-search">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="color:var(--text-muted)">
+                <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3" />
+                <path d="M9 9l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            <input type="text"
+                   id="searchInput"
+                   placeholder="Ürün ara..."
+                   value="@search"
+                   onkeyup="if(event.key==='Enter') searchServer(this.value)">
+        </div>
+        <div class="toolbar-right">
+            <span class="result-count" id="resultCount">@totalCount ürün</span>
+        </div>
+    </div>
+
+    <div style="overflow-x:auto">
+        <table class="prod-table">
+            <thead>
+                <tr>
+                    <th style="width:44px">
+                        <input type="checkbox" class="checkbox" id="selectAll" onchange="toggleAll(this)">
+                    </th>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Fiyat</th>
+                    <th>Stok</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><input type="checkbox" class="checkbox row-cb"></td>
+                            <td>
+                                <div class="prod-name-cell">
+                                    <div>
+                                        <div class="prod-name">@item.Name</div>
+                                        <div class="prod-sku">ID: @item.ProductID</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.CategoryID</td>
+                            <td><div class="prod-price">₺@item.Price.ToString("N0")</div></td>
+                            <td>
+                                <div class="stock-wrap">
+                                    <div class="stock-bar">
+                                        <div class="stock-fill" style="width:@(Math.Min(item.Stock, 100))%;background:var(--accent-emerald)"></div>
+                                    </div>
+                                    <span class="stock-val">@item.Stock</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a asp-controller="Product"
+                                       asp-action="UpdateProduct"
+                                       asp-route-id="@item.ProductID"
+                                       class="action-btn edit">
+                                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                            <path d="M8.5 2.5l2 2L4 11H2v-2L8.5 2.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                                        </svg>
+                                    </a>
+                                    <a asp-controller="Product"
+                                       asp-action="DeleteProduct"
+                                       asp-route-id="@item.ProductID"
+                                       class="action-btn delete"
+                                       onclick="return confirm('@item.Name silinsin mi?')">
+                                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                            <path d="M2 3.5h9M5 3.5V2h3v1.5M4.5 3.5l.5 7h3l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">
+                            <div style="font-size:32px;margin-bottom:8px">🔍</div>
+                            <div>"@search" için ürün bulunamadı</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SAYFALAMA -->
+    @if (totalPages > 1)
+    {
+        <div class="pagination-wrap">
+            <div class="pagination-info">
+                Sayfa @currentPage / @totalPages &nbsp;·&nbsp; Toplam @totalCount ürün
+            </div>
+            <div class="pagination">
+
+                @* Önceki *@
+                @if (currentPage > 1)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@search" class="page-btn">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M8 2L4 6.5 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                }
+                else
+                {
+                    <span class="page-btn disabled">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M8 2L4 6.5 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                }
+
+                @* Sayfa numaraları *@
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2))
+                    {
+                        <a asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-search="@search"
+                           class="page-btn @(i == currentPage ? "active" : "")">@i</a>
+                    }
+                    else if (i == currentPage - 3 || i == currentPage + 3)
+                    {
+                        <span class="page-dots">···</span>
+                    }
+                }
+
+                @* Sonraki *@
+                @if (currentPage < totalPages)
+                {
+                    <a asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@search" class="page-btn">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M5 2l4 4.5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                }
+                else
+                {
+                    <span class="page-btn disabled">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M5 2l4 4.5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .pagination-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .pagination-info {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+        background: transparent;
+        border: 1px solid transparent;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            background: var(--hover-bg, #f3f4f6);
+            border-color: var(--border-color, #e5e7eb);
+        }
+
+        .page-btn.active {
+            background: var(--accent-cyan, #06b6d4);
+            color: #fff;
+            border-color: var(--accent-cyan, #06b6d4);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+    .page-dots {
+        font-size: 13px;
+        color: var(--text-muted);
+        padding: 0 4px;
+    }
+</style>
+
+<script>
+    function searchServer(value) {
+        window.location.href = '/Product/Index?search=' + encodeURIComponent(value) + '&page=1';
+    }
+
+    function toggleAll(source) {
+        document.querySelectorAll('.row-cb').forEach(cb => cb.checked = source.checked);
+    }
+</script>

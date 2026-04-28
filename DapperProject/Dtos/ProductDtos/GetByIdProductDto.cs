@@ -1,6 +1,6 @@
 ﻿namespace DapperProject.Dtos.ProductDtos
 {
-    public class ResultProductDto
+    public class GetByIdProductDto
     {
         public int ProductID { get; set; }
         public string Name { get; set; }
