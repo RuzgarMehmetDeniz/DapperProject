@@ -17,7 +17,7 @@ namespace DapperProject.Controllers
         public async Task<IActionResult> Index(int page = 1, string search = "")
         {
             ViewBag.Title = "Kategori";
-            ViewBag.Title2 = "kategorileri";
+            ViewBag.Title2 = "Kategoriler";
 
             var allCategories = await _categoryService.GetAllCategoryAsync();
 
@@ -71,7 +71,13 @@ namespace DapperProject.Controllers
         public async Task<IActionResult> UpdateCategory(int id)
         {
             var value = await _categoryService.GetByIdCategoryAsync(id);
-            return View(value);
+            var updateDto = new UpdateCategoryDto
+            {
+                CategoryId = value.CategoryId,
+                CategoryName = value.CategoryName,
+                Status = value.Status
+            };
+            return View(updateDto);
         }
 
         // Güncelleme POST

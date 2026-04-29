@@ -1,4 +1,5 @@
 ﻿using DapperProject.Dtos.ProductDtos;
+using DapperProject.Repositories.CategoryRepository;
 using DapperProject.Repositories.ProductRepository.ProductService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,12 @@ namespace DapperProject.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, ICategoryService categoryService)
         {
             _productService = productService;
+            _categoryService = categoryService;
         }
 
         // Listeleme
@@ -18,7 +21,7 @@ namespace DapperProject.Controllers
         public async Task<IActionResult> Index(int page = 1, string search = "")
         {
             ViewBag.Title = "Ürün";
-            ViewBag.Title2 = "ürünleri";
+            ViewBag.Title2 = "Ürünleri";
             var categoryCount = await _productService.GetAllProductAsync();
             ViewBag.CategoryCount = categoryCount.Count;
 
@@ -46,8 +49,10 @@ namespace DapperProject.Controllers
         }
         // Oluşturma GET
         [HttpGet]
-        public IActionResult CreateProduct()
+        public async Task<IActionResult> CreateProduct()
         {
+            var categories = await _categoryService.GetAllCategoryAsync();
+            ViewBag.Categories = categories;
             return View();
         }
 
@@ -70,8 +75,19 @@ namespace DapperProject.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateProduct(int id)
         {
+            var categories = await _categoryService.GetAllCategoryAsync();
+            ViewBag.Categories = categories;
             var value = await _productService.GetByIdProductAsync(id);
-            return View(value);
+            var updateDto = new UpdateProductDto
+            {
+                ProductID = value.ProductID,
+                Name = value.Name,
+                Stock = value.Stock,
+                CategoryID = value.CategoryID,
+                Price = value.Price,
+                Brand = value.Brand
+            };
+            return View(updateDto);
         }
 
         // Güncelleme POST

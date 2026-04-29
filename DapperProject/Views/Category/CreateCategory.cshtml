@@ -1,8 +1,242 @@
-﻿
+﻿@model CreateCategoryDto
 @{
-    ViewData["Title"] = "CreateCategory";
+    ViewData["Title"] = "Kategori Ekle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
 }
 
-<h1>CreateCategory</h1>
+<div class="page-header">
+    <div class="page-header-actions">
+        <a asp-controller="Category" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M8 2L4 6.5 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Geri Dön
+        </a>
+    </div>
+</div>
 
+<div class="card create-card">
+    <div class="form-card-header">
+        <div class="form-card-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2v16M2 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div>
+            <div class="form-card-title">Yeni Kategori</div>
+            <div class="form-card-sub">Sisteme yeni bir kategori ekleyin</div>
+        </div>
+    </div>
+
+    <form asp-action="CreateCategory" asp-controller="Category" method="post" class="create-form">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label class="form-label" asp-for="CategoryName">
+                Kategori Adı <span class="required-dot">*</span>
+            </label>
+            <input asp-for="CategoryName"
+                   class="form-input"
+                   placeholder="örn: Elektronik, Giyim..."
+                   autocomplete="off" />
+            <span asp-validation-for="CategoryName" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Durum</label>
+            <div class="toggle-wrap">
+                <label class="toggle-switch">
+                    <input asp-for="Status" type="checkbox" id="statusToggle" />
+                    <span class="toggle-track">
+                        <span class="toggle-thumb"></span>
+                    </span>
+                </label>
+                <span class="toggle-label" id="toggleLabel">Pasif</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-controller="Category" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">
+                İptal
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M2 7l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .create-card {
+        max-width: 560px;
+        margin: 40px auto;
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 24px 24px 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: var(--accent-cyan, #06b6d4);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .form-card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .form-card-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .create-form {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .required-dot {
+        color: #ef4444;
+        font-size: 15px;
+        line-height: 1;
+    }
+
+    .form-input {
+        height: 38px;
+        padding: 0 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 13px;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+        .form-input:focus {
+            border-color: var(--accent-cyan, #06b6d4);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, .12);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: .5;
+        }
+
+    .field-error {
+        font-size: 12px;
+        color: #ef4444;
+    }
+
+    .toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+    .toggle-track {
+        display: block;
+        width: 42px;
+        height: 24px;
+        border-radius: 999px;
+        background: var(--border-color, #3f4451);
+        transition: background .2s;
+        position: relative;
+    }
+
+    .toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        transition: transform .2s;
+    }
+
+    .toggle-switch input:checked + .toggle-track {
+        background: var(--accent-cyan, #06b6d4);
+    }
+
+        .toggle-switch input:checked + .toggle-track .toggle-thumb {
+            transform: translateX(18px);
+        }
+
+    .toggle-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        min-width: 40px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+    }
+</style>
+
+<script>
+    const toggle = document.getElementById('statusToggle');
+    const label = document.getElementById('toggleLabel');
+
+    function updateLabel() {
+        label.textContent = toggle.checked ? 'Aktif' : 'Pasif';
+        label.style.color = toggle.checked ? 'var(--accent-cyan, #06b6d4)' : 'var(--text-muted)';
+    }
+
+    toggle.addEventListener('change', updateLabel);
+    updateLabel();
+</script>

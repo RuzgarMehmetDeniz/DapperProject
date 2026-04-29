@@ -6,25 +6,52 @@
         <div class="stat-label">Toplam Stok</div>
         <div class="stat-change">Tüm ürünlerin stok toplamı</div>
     </div>
+
     <div class="stat-card">
         <div class="stat-val" style="color:var(--accent-emerald)">
-            @ViewBag.MaxStock.Stock.ToString("N0")
+            @if (ViewBag.MaxStock != null)
+            {
+                @ViewBag.MaxStock.Stock.ToString("N0")
+            }
         </div>
         <div class="stat-label">En Fazla Stok</div>
-        <div class="stat-change">@ViewBag.MaxStock.Name</div>
+        <div class="stat-change">
+            @if (ViewBag.MaxStock != null)
+            {
+                @ViewBag.MaxStock.Name
+            }
+        </div>
     </div>
+
     <div class="stat-card">
         <div class="stat-val" style="color:var(--accent-amber)">
-            @ViewBag.MinStock.Stock.ToString("N0")
+            @if (ViewBag.MinStock != null)
+            {
+                @ViewBag.MinStock.Stock.ToString("N0")
+            }
         </div>
         <div class="stat-label">En Az Stok</div>
-        <div class="stat-change down">@ViewBag.MinStock.Name</div>
+        <div class="stat-change down">
+            @if (ViewBag.MinStock != null)
+            {
+                @ViewBag.MinStock.Name
+            }
+        </div>
     </div>
+
     <div class="stat-card">
         <div class="stat-val" style="color:var(--accent-rose)">
-            #@ViewBag.LastProduct.ProductID.ToString("N0")
+            @if (ViewBag.LastProduct != null)
+            {
+                <span>#@ViewBag.LastProduct.ProductID</span>
+            }
         </div>
         <div class="stat-label">Son Eklenen</div>
-        <div class="stat-change">@ViewBag.LastProduct.Name</div>
+        <div class="stat-change">
+            @if (ViewBag.LastProduct != null)
+            {
+                @ViewBag.LastProduct.Name
+            }
+        </div>
     </div>
 </div>

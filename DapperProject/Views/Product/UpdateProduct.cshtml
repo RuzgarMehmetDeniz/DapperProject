@@ -1,7 +1,7 @@
 ﻿@using DapperProject.Dtos.CategoryDtos
-@model CreateProductDto
+@model UpdateProductDto
 @{
-    ViewData["Title"] = "Ürün Ekle";
+    ViewData["Title"] = "Ürün Güncelle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
     var categories = ViewBag.Categories as List<ResultCategoryDto>;
 }
@@ -19,19 +19,20 @@
 
 <div class="card create-card">
     <div class="form-card-header">
-        <div class="form-card-icon">
+        <div class="form-card-icon edit-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 2v16M2 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M14.5 2.5l3 3L6 17H3v-3L14.5 2.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
             </svg>
         </div>
         <div>
-            <div class="form-card-title">Yeni Ürün</div>
-            <div class="form-card-sub">Sisteme yeni bir ürün ekleyin</div>
+            <div class="form-card-title">Ürün Güncelle</div>
+            <div class="form-card-sub">ID: @Model.ProductID · Ürün bilgilerini düzenleyin</div>
         </div>
     </div>
 
-    <form asp-action="CreateProduct" asp-controller="Product" method="post" class="create-form">
+    <form asp-action="UpdateProduct" asp-controller="Product" method="post" class="create-form">
         @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ProductID" />
 
         <div class="form-row">
             <div class="form-group">
@@ -80,123 +81,28 @@
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <path d="M2 7l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                Kaydet
+                Güncelle
             </button>
         </div>
     </form>
 </div>
 
 <style>
-    .create-card {
-        max-width: 640px;
-        margin: 40px auto;
-    }
-
-    .form-card-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 24px 24px 20px;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .form-card-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        background: var(--accent-cyan, #06b6d4);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .form-card-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .form-card-sub {
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-top: 2px;
-    }
-
-    .create-form {
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .form-label {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .required-dot {
-        color: #ef4444;
-        font-size: 15px;
-        line-height: 1;
-    }
-
-    .form-input {
-        height: 38px;
-        padding: 0 12px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        background: transparent;
-        color: var(--text-primary);
-        font-size: 13px;
-        transition: border-color .15s, box-shadow .15s;
-        outline: none;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-        .form-input:focus {
-            border-color: var(--accent-cyan, #06b6d4);
-            box-shadow: 0 0 0 3px rgba(6,182,212,.12);
-        }
-
-        .form-input::placeholder {
-            color: var(--text-muted);
-            opacity: .5;
-        }
-
-    .form-select option {
-        background: var(--card-bg, #1e2130);
-        color: var(--text-primary);
-    }
-
-    .field-error {
-        font-size: 12px;
-        color: #ef4444;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border-color);
-    }
+    .create-card { max-width: 640px; margin: 40px auto; }
+    .form-card-header { display: flex; align-items: center; gap: 14px; padding: 24px 24px 20px; border-bottom: 1px solid var(--border-color); }
+    .form-card-icon { width: 42px; height: 42px; border-radius: 10px; background: var(--accent-cyan, #06b6d4); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .edit-icon { background: var(--accent-violet, #8b5cf6); }
+    .form-card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .form-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .create-form { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+    .required-dot { color: #ef4444; font-size: 15px; line-height: 1; }
+    .form-input { height: 38px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); font-size: 13px; transition: border-color .15s, box-shadow .15s; outline: none; width: 100%; box-sizing: border-box; }
+    .form-input:focus { border-color: var(--accent-violet, #8b5cf6); box-shadow: 0 0 0 3px rgba(139,92,246,.12); }
+    .form-input::placeholder { color: var(--text-muted); opacity: .5; }
+    .form-select option { background: var(--card-bg, #1e2130); color: var(--text-primary); }
+    .field-error { font-size: 12px; color: #ef4444; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 </style>

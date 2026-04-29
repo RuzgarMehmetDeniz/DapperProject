@@ -1,86 +1,65 @@
-﻿@using DapperProject.Dtos.CategoryDtos
-@model CreateProductDto
+﻿@model UpdateCustomerDto
 @{
-    ViewData["Title"] = "Ürün Ekle";
+    ViewData["Title"] = "Müşteri Güncelle";
     Layout = "~/Views/AdminLayout/Index.cshtml";
-    var categories = ViewBag.Categories as List<ResultCategoryDto>;
 }
 
 <div class="page-header">
     <div class="page-header-actions">
-        <a asp-controller="Product" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">
+        <a asp-controller="Customer" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                 <path d="M8 2L4 6.5 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            Geri Dön
+            Vazgeç
         </a>
     </div>
 </div>
 
 <div class="card create-card">
     <div class="form-card-header">
-        <div class="form-card-icon">
+        <div class="form-card-icon" style="background: var(--accent-emerald, #10b981);">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 2v16M2 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M13.5 3.5l3 3L6.5 16.5H3.5v-3L13.5 3.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
             </svg>
         </div>
         <div>
-            <div class="form-card-title">Yeni Ürün</div>
-            <div class="form-card-sub">Sisteme yeni bir ürün ekleyin</div>
+            <div class="form-card-title">Müşteriyi Düzenle</div>
+            <div class="form-card-sub">ID: #@Model.CustomerId olan kaydı güncelliyorsunuz</div>
         </div>
     </div>
 
-    <form asp-action="CreateProduct" asp-controller="Product" method="post" class="create-form">
-        @Html.AntiForgeryToken()
+    <form asp-action="UpdateCustomer" asp-controller="Customer" method="post" class="create-form">
+        <input type="hidden" asp-for="CustomerId" />
 
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" asp-for="Name">Ürün Adı <span class="required-dot">*</span></label>
-                <input asp-for="Name" class="form-input" placeholder="örn: iPhone 15 Pro" autocomplete="off" />
-                <span asp-validation-for="Name" class="field-error"></span>
+                <label class="form-label" asp-for="Name">Ad <span class="required-dot">*</span></label>
+                <input asp-for="Name" class="form-input" required />
             </div>
             <div class="form-group">
-                <label class="form-label" asp-for="Brand">Marka <span class="required-dot">*</span></label>
-                <input asp-for="Brand" class="form-input" placeholder="örn: Apple" autocomplete="off" />
-                <span asp-validation-for="Brand" class="field-error"></span>
+                <label class="form-label" asp-for="Surname">Soyad <span class="required-dot">*</span></label>
+                <input asp-for="Surname" class="form-input" required />
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" asp-for="Price">Fiyat (₺) <span class="required-dot">*</span></label>
-                <input asp-for="Price" type="number" class="form-input" placeholder="0" />
-                <span asp-validation-for="Price" class="field-error"></span>
+                <label class="form-label" asp-for="City">Şehir <span class="required-dot">*</span></label>
+                <input asp-for="City" class="form-input" required />
             </div>
             <div class="form-group">
-                <label class="form-label" asp-for="Stock">Stok <span class="required-dot">*</span></label>
-                <input asp-for="Stock" type="number" class="form-input" placeholder="0" />
-                <span asp-validation-for="Stock" class="field-error"></span>
+                <label class="form-label" asp-for="Country">Ülke <span class="required-dot">*</span></label>
+                <input asp-for="Country" class="form-input" required />
             </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" asp-for="CategoryID">Kategori <span class="required-dot">*</span></label>
-            <select asp-for="CategoryID" class="form-input form-select">
-                <option value="">-- Kategori Seçin --</option>
-                @if (categories != null)
-                {
-                    @foreach (var cat in categories)
-                    {
-                        <option value="@cat.CategoryId">@cat.CategoryName</option>
-                    }
-                }
-            </select>
-            <span asp-validation-for="CategoryID" class="field-error"></span>
         </div>
 
         <div class="form-actions">
-            <a asp-controller="Product" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">İptal</a>
-            <button type="submit" class="btn btn-primary">
+            <a asp-controller="Customer" asp-action="Index" class="btn btn-secondary" style="text-decoration:none;">İptal</a>
+            <button type="submit" class="btn btn-primary" style="background: var(--accent-emerald, #10b981); border-color: var(--accent-emerald);">
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <path d="M2 7l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                Kaydet
+                Değişiklikleri Kaydet
             </button>
         </div>
     </form>
@@ -176,21 +155,6 @@
             border-color: var(--accent-cyan, #06b6d4);
             box-shadow: 0 0 0 3px rgba(6,182,212,.12);
         }
-
-        .form-input::placeholder {
-            color: var(--text-muted);
-            opacity: .5;
-        }
-
-    .form-select option {
-        background: var(--card-bg, #1e2130);
-        color: var(--text-primary);
-    }
-
-    .field-error {
-        font-size: 12px;
-        color: #ef4444;
-    }
 
     .form-actions {
         display: flex;

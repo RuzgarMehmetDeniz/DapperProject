@@ -1,0 +1,45 @@
+﻿<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-cyan)">
+            @ViewBag.TotalCustomerCount.ToString("N0")
+        </div>
+        <div class="stat-label">Toplam Müşteri</div>
+        <div class="stat-change">Sisteme kayıtlı aktif kullanıcılar</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-emerald)">
+            @ViewBag.CityCount.ToString("N0")
+        </div>
+        <div class="stat-label">Farklı Şehir</div>
+        <div class="stat-change">Hizmet verilen toplam bölge</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-amber)">
+            @ViewBag.TopCityName
+        </div>
+        <div class="stat-label">En Yoğun Bölge</div>
+        <div class="stat-change">En çok müşterinin bulunduğu şehir</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-rose)">
+            @if (ViewBag.LastCustomer != null)
+            {
+                <span>#@ViewBag.LastCustomer.CustomerId</span>
+            }
+        </div>
+        <div class="stat-label">Son Kayıt</div>
+        <div class="stat-change">
+            @if (ViewBag.LastCustomer != null)
+            {
+                <span>@ViewBag.LastCustomer.Name @ViewBag.LastCustomer.Surname</span>
+            }
+            else
+            {
+                <span>Kayıt bulunamadı</span>
+            }
+        </div>
+    </div>
+</div>
