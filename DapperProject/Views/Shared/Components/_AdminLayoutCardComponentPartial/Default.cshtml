@@ -1,22 +1,30 @@
 ﻿<div class="stats-row">
     <div class="stat-card">
-        <div class="stat-val" style="color:var(--accent-cyan)" id="statTotal">12</div>
-        <div class="stat-label">Toplam Ürün</div>
-        <div class="stat-change">↑ +2 bu ay</div>
+        <div class="stat-val" style="color:var(--accent-cyan)">
+            @ViewBag.TotalStock.ToString("N0")
+        </div>
+        <div class="stat-label">Toplam Stok</div>
+        <div class="stat-change">Tüm ürünlerin stok toplamı</div>
     </div>
     <div class="stat-card">
-        <div class="stat-val" style="color:var(--accent-emerald)" id="statActive">9</div>
-        <div class="stat-label">Aktif</div>
-        <div class="stat-change">↑ +1 bu hafta</div>
+        <div class="stat-val" style="color:var(--accent-emerald)">
+            @ViewBag.MaxStock.Stock.ToString("N0")
+        </div>
+        <div class="stat-label">En Fazla Stok</div>
+        <div class="stat-change">@ViewBag.MaxStock.Name</div>
     </div>
     <div class="stat-card">
-        <div class="stat-val" style="color:var(--accent-amber)" id="statDraft">2</div>
-        <div class="stat-label">Taslak</div>
-        <div class="stat-change" style="color:var(--text-muted)">— Değişiklik yok</div>
+        <div class="stat-val" style="color:var(--accent-amber)">
+            @ViewBag.MinStock.Stock.ToString("N0")
+        </div>
+        <div class="stat-label">En Az Stok</div>
+        <div class="stat-change down">@ViewBag.MinStock.Name</div>
     </div>
     <div class="stat-card">
-        <div class="stat-val" style="color:var(--accent-rose)" id="statOut">1</div>
-        <div class="stat-label">Tükendi</div>
-        <div class="stat-change down">↓ Stok girilmeli</div>
+        <div class="stat-val" style="color:var(--accent-rose)">
+            #@ViewBag.LastProduct.ProductID.ToString("N0")
+        </div>
+        <div class="stat-label">Son Eklenen</div>
+        <div class="stat-change">@ViewBag.LastProduct.Name</div>
     </div>
 </div>

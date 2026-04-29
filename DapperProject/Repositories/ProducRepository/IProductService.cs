@@ -1,6 +1,6 @@
 ﻿using DapperProject.Dtos.ProductDtos;
 
-namespace DapperProject.Repositories
+namespace DapperProject.Repositories.ProductRepository.ProductService
 {
     public interface IProductService
     {
@@ -9,5 +9,10 @@ namespace DapperProject.Repositories
         Task CreateProductAsync(CreateProductDto productDto);
         Task UpdateProductAsync(UpdateProductDto productDto);
         Task DeleteProductAsync(int id);
+
+        Task<int> GetTotalStockAsync();
+        Task<ResultProductDto> GetMaxStockProductAsync();
+        Task<ResultProductDto> GetMinStockProductAsync();
+        Task<ResultProductDto> GetLastAddedProductAsync();
     }
 }

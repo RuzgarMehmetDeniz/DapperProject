@@ -1,0 +1,30 @@
+﻿<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-cyan)">
+            @ViewBag.TotalCategory.ToString("N0")
+        </div>
+        <div class="stat-label">Toplam Kategori</div>
+        <div class="stat-change">Tüm kategoriler</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-emerald)">
+            @ViewBag.ActiveCategory.ToString("N0")
+        </div>
+        <div class="stat-label">Aktif Kategori</div>
+        <div class="stat-change">Yayında olan kategoriler</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-rose)">
+            @ViewBag.PassiveCategory.ToString("N0")
+        </div>
+        <div class="stat-label">Pasif Kategori</div>
+        <div class="stat-change down">Yayında olmayan kategoriler</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-amber)">
+            #@ViewBag.LastCategory?.CategoryId
+        </div>
+        <div class="stat-label">Son Eklenen</div>
+        <div class="stat-change">@ViewBag.LastCategory?.CategoryName</div>
+    </div>
+</div>

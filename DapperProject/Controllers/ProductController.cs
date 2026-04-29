@@ -1,5 +1,5 @@
 ﻿using DapperProject.Dtos.ProductDtos;
-using DapperProject.Repositories;
+using DapperProject.Repositories.ProductRepository.ProductService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DapperProject.Controllers
@@ -17,6 +17,11 @@ namespace DapperProject.Controllers
         // ProductController.cs
         public async Task<IActionResult> Index(int page = 1, string search = "")
         {
+            ViewBag.Title = "Ürün";
+            ViewBag.Title2 = "ürünleri";
+            var categoryCount = await _productService.GetAllProductAsync();
+            ViewBag.CategoryCount = categoryCount.Count;
+
             var allProducts = await _productService.GetAllProductAsync();
 
             if (!string.IsNullOrEmpty(search))

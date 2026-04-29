@@ -1,8 +1,7 @@
 ﻿using DapperProject.Context;
 using DapperProject.Dtos.ProductDtos;
 using Dapper;
-
-namespace DapperProject.Repositories
+namespace DapperProject.Repositories.ProductRepository.ProductService
 {
     public class ProductService : IProductService
     {
@@ -48,6 +47,38 @@ namespace DapperProject.Repositories
             string query = "DELETE FROM Product WHERE ProductID = @ProductID";
             using var connection = _context.CreateConnection();
             await connection.ExecuteAsync(query, new { ProductID = id });
+        }
+        public async Task<int> GetTotalStockAsync()
+        {
+            string query = "SELECT SUM(Stock) FROM Product";
+            using var connection = _context.CreateConnection();
+            var command = new CommandDefinition(query, commandTimeout: 120);
+            var value = await connection.QueryFirstAsync<int>(command);
+            return value;
+        }
+
+        public async Task<ResultProductDto> GetMaxStockProductAsync()
+        {
+            string query = "Select Top 1 * From Product Order By Stock DESC";
+            using var connection = _context.CreateConnection();
+            var value = await connection.QueryFirstAsync<ResultProductDto>(query);
+            return value;
+        }
+
+        public async Task<ResultProductDto> GetMinStockProductAsync()
+        {
+            string query = "Select Top 1 * From Product Order By Stock ASC";
+            using var connection = _context.CreateConnection();
+            var value = await connection.QueryFirstAsync<ResultProductDto>(query);
+            return value;
+        }
+
+        public async Task<ResultProductDto> GetLastAddedProductAsync()
+        {
+            string query = "Select Top 1 * From Product Order By ProductID DESC";
+            using var connection = _context.CreateConnection();
+            var value = await connection.QueryFirstAsync<ResultProductDto>(query);
+            return value;
         }
     }
 }
