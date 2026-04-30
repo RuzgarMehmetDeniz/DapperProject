@@ -1,0 +1,46 @@
+﻿<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-cyan)">
+            @((ViewBag.TotalOrders as int?)?.ToString("N0") ?? "0")
+        </div>
+        <div class="stat-label">Toplam Sipariş</div>
+        <div class="stat-change">Tüm siparişlerin sayısı</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-emerald)">
+            @((ViewBag.TotalRevenue as decimal?)?.ToString("C2") ?? "₺0,00")
+        </div>
+        <div class="stat-label">Toplam Ciro</div>
+        <div class="stat-change">Quantity × Price toplamı</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-amber)">
+            @if (ViewBag.TopCustomer != null)
+            {
+                @((ViewBag.TopCustomer.OrderCount as int?)?.ToString("N0") ?? "0")
+            }
+        </div>
+        <div class="stat-label">En Çok Sipariş Veren</div>
+        <div class="stat-change">
+            @if (ViewBag.TopCustomer != null)
+            {
+                @ViewBag.TopCustomer.Name
+            }
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent-rose)">
+            @if (ViewBag.LastOrder != null)
+            {
+                <span>#@ViewBag.LastOrder.OrderID</span>
+            }
+        </div>
+        <div class="stat-label">Son Sipariş</div>
+        <div class="stat-change">
+            @if (ViewBag.LastOrder != null)
+            {
+                @ViewBag.LastOrder.CustomerName
+            }
+        </div>
+    </div>
+</div>

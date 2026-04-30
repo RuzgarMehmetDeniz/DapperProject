@@ -1,4 +1,5 @@
 ﻿using DapperProject.Dtos.OrderDtos;
+using DapperProject.Models.ML;
 
 namespace DapperProject.Repositories.OrderRepository
 {
@@ -9,5 +10,10 @@ namespace DapperProject.Repositories.OrderRepository
         Task CreateOrderAsync(CreateOrderDto createOrderDto);
         Task UpdateOrderAsync(UpdateOrderDto updateOrderDto);
         Task DeleteOrderAsync(int id);
+        Task<int> GetTotalOrderCountAsync();
+        Task<decimal> GetTotalRevenueAsync();
+        Task<TopCustomerDto> GetTopCustomerAsync();
+        Task<LastOrderDto> GetLastOrderAsync();
+        Task<List<OrderYearlyData>> GetYearlyOrderDataAsync(); // sadece bir kez!
     }
 }

@@ -1,0 +1,107 @@
+﻿@{
+    Layout = "~/Views/AdminLayout/Index.cshtml";
+    ViewData["Title"] = "Tahminleme";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Sipariş Tahminleme</h1>
+        <p class="page-subtitle">ML.NET ile 2025 ve 2026 yılı tahminleri</p>
+    </div>
+</div>
+
+<!-- Gerçek Veriler -->
+<div class="section-label" style="margin-bottom:12px;font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;">
+    Geçmiş Veriler
+</div>
+<div class="stats-row" style="margin-bottom:32px;">
+    @foreach (var item in ViewBag.YearlyData)
+    {
+        <div class="stat-card">
+            <div class="stat-val" style="color:var(--accent-cyan)">@item.Year</div>
+            <div class="stat-label">Ciro</div>
+            <div class="stat-change">@item.TotalRevenue.ToString("C2")</div>
+            <div class="stat-label" style="margin-top:8px;">Sipariş</div>
+            <div class="stat-change">@item.TotalOrders.ToString("N0") adet</div>
+        </div>
+    }
+</div>
+
+<!-- Tahmin Verileri -->
+<div class="section-label" style="margin-bottom:12px;font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;">
+    Tahminler
+</div>
+<div class="stats-row" style="margin-bottom:32px;">
+    @foreach (var pred in ViewBag.Predictions)
+    {
+        <div class="stat-card">
+            <div class="stat-val" style="color:var(--accent-emerald)">@pred.Year</div>
+            <div class="stat-label">Tahmini Ciro</div>
+            <div class="stat-change">@pred.PredictedRevenue.ToString("C2")</div>
+            <div class="stat-label" style="margin-top:8px;">Tahmini Sipariş</div>
+            <div class="stat-change">@((int)pred.PredictedOrders) adet</div>
+        </div>
+    }
+</div>
+
+<!-- Chart -->
+<div class="card" style="padding:24px;">
+    <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:20px;">
+        Yıllık Ciro — Gerçek & Tahmin
+    </div>
+    <canvas id="predictionChart" height="100"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const realLabels   = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (int)d.Year)));
+        const realRevenue  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (float)d.TotalRevenue)));
+        const predLabels   = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (int)d.Year)));
+        const predRevenue  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (float)d.PredictedRevenue)));
+
+        const allLabels  = [...realLabels, ...predLabels];
+        const realData   = [...realRevenue, ...new Array(predLabels.length).fill(null)];
+        const predData   = [...new Array(realLabels.length).fill(null), ...predRevenue];
+
+        new Chart(document.getElementById('predictionChart'), {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Gerçek Ciro',
+                        data: realData,
+                        borderColor: 'var(--accent-cyan)',
+                        backgroundColor: 'rgba(6,182,212,0.1)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        tension: 0.4,
+                        spanGaps: false
+                    },
+                    {
+                        label: 'Tahmini Ciro',
+                        data: predData,
+                        borderColor: 'var(--accent-emerald)',
+                        backgroundColor: 'rgba(16,185,129,0.1)',
+                        borderWidth: 2,
+                        borderDash: [6, 3],
+                        pointRadius: 5,
+                        tension: 0.4,
+                        spanGaps: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { labels: { color: 'var(--text-primary)' } }
+                },
+                scales: {
+                    x: { ticks: { color: 'var(--text-muted)' }, grid: { color: 'var(--border)' } },
+                    y: { ticks: { color: 'var(--text-muted)' }, grid: { color: 'var(--border)' } }
+                }
+            }
+        });
+    </script>
+}
