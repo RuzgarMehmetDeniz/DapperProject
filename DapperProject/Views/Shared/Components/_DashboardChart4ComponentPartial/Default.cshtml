@@ -1,0 +1,120 @@
+﻿@{
+    var orders = ViewBag.Orders as List<dynamic> ?? new List<dynamic>();
+    var topStock = ViewBag.TopStock as List<dynamic> ?? new List<dynamic>();
+    var lowStock = ViewBag.LowStock as List<dynamic> ?? new List<dynamic>();
+
+    int topMax = topStock.Count > 0 ? (int)topStock[0].Stock : 1;
+    if (topMax == 0) topMax = 1;
+}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+    <!-- SOL: Recent Orders (tam yükseklik, 2 satırı kapsar) -->
+    <div class="card" style="grid-column: 1; grid-row: span 2;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Recent Orders</div>
+                <div class="card-subtitle">Last 10 orders</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" asp-controller="Orders" asp-action="Index">Hepsi</button>
+        </div>
+        <div class="card-body" style="padding-top:12px;padding-bottom:0;overflow-x:auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sipariş Numarası</th>
+                        <th>Müşteri Numarası</th>
+                        <th>Ürün Numarası</th>
+                        <th>Ürün Sayısı</th>
+                        <th>Fiyatı</th>
+                        <th>Durumu</th>
+                        <th>Günü</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in orders)
+                    {
+                        string status = order.Status?.ToString() ?? "";
+                        string badgeClass = status.ToLower() switch
+                        {
+                            "complete" or "completed" => "badge badge-success",
+                            "processing" or "pending" => "badge badge-info",
+                            "queued" => "badge badge-warning",
+                            "cancelled" or "failed" => "badge badge-danger",
+                            _ => "badge badge-info"
+                        };
+                        <tr>
+                            <td class="td-primary">#@order.OrderId</td>
+                            <td>@order.CustomerId</td>
+                            <td>@order.ProductId</td>
+                            <td>@order.Quantity</td>
+                            <td>@($"{order.Price:N2} ₺")</td>
+                            <td><span class="@badgeClass">@status</span></td>
+                            <td>@($"{order.OrderDate:dd.MM.yyyy}")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SAĞ ÜST: En Fazla Stok -->
+    <div class="card" style="grid-column: 2; grid-row: 1;">
+        <div class="card-header">
+            <div class="card-title">🔝 En Fazla Stok</div>
+            <div class="badge badge-success" style="font-size:10px">Top 5</div>
+        </div>
+        <div class="top-cat-items" style="margin-top:14px">
+            @for (int i = 0; i < topStock.Count; i++)
+            {
+                string name = topStock[i].Name?.ToString() ?? "";
+                int stock = (int)topStock[i].Stock;
+                double pct = (double)stock / topMax * 100;
+                string label = name.Length > 20 ? name.Substring(0, 19) + "…" : name;
+
+                <div class="top-cat-item">
+                    <div class="top-cat-rank">@(i + 1)</div>
+                    <div class="top-cat-info">
+                        <div class="top-cat-name">@label</div>
+                        <div class="top-cat-meta">@stock adet</div>
+                    </div>
+                    <div class="top-cat-bar-wrap">
+                        <div class="top-cat-bar" style="width:@(pct.ToString("F0"))%;background:var(--gradient-primary)"></div>
+                    </div>
+                    <div class="top-cat-count">@stock</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- SAĞ ALT: En Düşük Stok -->
+    <div class="card" style="grid-column: 2; grid-row: 2;">
+        <div class="card-header">
+            <div class="card-title">⚠️ En Düşük Stok</div>
+            <div class="badge badge-danger" style="font-size:10px">Low 5</div>
+        </div>
+        <div class="top-cat-items" style="margin-top:14px">
+            @for (int i = 0; i < lowStock.Count; i++)
+            {
+                string name = lowStock[i].Name?.ToString() ?? "";
+                int stock = (int)lowStock[i].Stock;
+                double pct = (double)stock / topMax * 100;
+                if (pct < 5) pct = 5;
+                string label = name.Length > 20 ? name.Substring(0, 19) + "…" : name;
+
+                <div class="top-cat-item">
+                    <div class="top-cat-rank">@(i + 1)</div>
+                    <div class="top-cat-info">
+                        <div class="top-cat-name">@label</div>
+                        <div class="top-cat-meta">@stock adet</div>
+                    </div>
+                    <div class="top-cat-bar-wrap">
+                        <div class="top-cat-bar" style="width:@(pct.ToString("F0"))%;background:var(--gradient-rose)"></div>
+                    </div>
+                    <div class="top-cat-count">@stock</div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

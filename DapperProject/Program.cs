@@ -1,6 +1,7 @@
 using DapperProject.Context;
 using DapperProject.Repositories.CategoryRepository;
 using DapperProject.Repositories.CustomerRepository;
+using DapperProject.Repositories.DashboardRepository;
 using DapperProject.Repositories.OrderRepository;
 using DapperProject.Repositories.ProductRepository.ProductService;
 using DapperProject.Services;
@@ -13,6 +14,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddSingleton<OrderPredictionService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddControllersWithViews();
 

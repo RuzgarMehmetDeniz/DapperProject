@@ -1,0 +1,100 @@
+﻿@{
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+    var counts = ViewBag.Counts as List<int> ?? new List<int>();
+    int maxCount = ViewBag.MaxCount ?? 1;
+
+    int barBottom = 155;
+    int barMaxH = 130;
+    int barWidth = 36;
+    int gap = 50;
+}
+<div class="charts-row">
+    <div class="card">
+        <div class="chart-container">
+            <div class="card-header" style="padding:0">
+                <div>
+                    <div class="card-title">Popüler Kategoriler</div>
+                    <div class="card-subtitle">En iyi 8 Kategori</div>
+                </div>
+            </div>
+            <div class="chart-bar-area">
+                <svg class="chart-svg" viewBox="0 0 400 180" preserveAspectRatio="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.9" />
+                            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.6" />
+                        </linearGradient>
+                        <linearGradient id="barGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.9" />
+                            <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.5" />
+                        </linearGradient>
+                    </defs>
+
+                    <line x1="0" y1="0" x2="400" y2="0" class="chart-grid-line" />
+                    <line x1="0" y1="45" x2="400" y2="45" class="chart-grid-line" />
+                    <line x1="0" y1="90" x2="400" y2="90" class="chart-grid-line" />
+                    <line x1="0" y1="135" x2="400" y2="135" class="chart-grid-line" />
+
+                    @for (int i = 0; i < categories.Count; i++)
+                    {
+                        int barH = (int)((double)counts[i] / maxCount * barMaxH);
+                        int barY = barBottom - barH;
+                        int barX = 10 + i * gap;
+                        int centerX = barX + barWidth / 2;
+                        string fill = i % 2 == 0 ? "url(#barGrad)" : "url(#barGrad2)";
+                        string label = categories[i].Length > 6
+                        ? categories[i].Substring(0, 5) + "…"
+                        : categories[i];
+                        int countY = barY - 3;
+
+                        <rect x="@barX" y="@barY" width="@barWidth" height="@barH" rx="4" fill="@fill" class="bar-rect" />
+
+                        <svg x="@(centerX - 15)" y="@countY" width="30" height="12" overflow="visible">
+                            <text x="15" y="10" text-anchor="middle" font-size="7" fill="#00d4ff">@counts[i]</text>
+                        </svg>
+
+                        <svg x="@(centerX - 18)" y="163" width="36" height="14" overflow="visible">
+                            <text x="18" y="10" text-anchor="middle" font-size="8" fill="#aaaaaa">@label</text>
+                        </svg>
+                    }
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-container">
+            <div class="card-header" style="padding:0">
+                <div>
+                    <div class="card-title">Activity Trends</div>
+                    <div class="card-subtitle">User activity over 7 days</div>
+                </div>
+            </div>
+            <div class="chart-bar-area">
+                <svg class="chart-svg" viewBox="0 0 400 180" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="areaGrad2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.25" /><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0" /></linearGradient>
+                    </defs>
+                    <line x1="0" y1="45" x2="400" y2="45" class="chart-grid-line" />
+                    <line x1="0" y1="90" x2="400" y2="90" class="chart-grid-line" />
+                    <line x1="0" y1="135" x2="400" y2="135" class="chart-grid-line" />
+                    <path d="M0,130 C40,120 80,80 120,90 C160,100 200,50 240,60 C280,70 320,40 360,30 L400,25 V180 H0 Z" class="area-path" />
+                    <path d="M0,130 C40,120 80,80 120,90 C160,100 200,50 240,60 C280,70 320,40 360,30 L400,25" class="area-line" />
+                    <circle cx="0" cy="130" r="4" fill="var(--accent-violet)" stroke="var(--bg-card)" stroke-width="2" />
+                    <circle cx="120" cy="90" r="4" fill="var(--accent-violet)" stroke="var(--bg-card)" stroke-width="2" />
+                    <circle cx="200" cy="50" r="4" fill="var(--accent-violet)" stroke="var(--bg-card)" stroke-width="2" />
+                    <circle cx="240" cy="60" r="4" fill="var(--accent-violet)" stroke="var(--bg-card)" stroke-width="2" />
+                    <circle cx="400" cy="25" r="5" fill="var(--accent-violet)" stroke="var(--bg-card)" stroke-width="2" />
+                    <text x="0" y="175" class="chart-axis-label">Pzr</text>
+                    <text x="55" y="175" class="chart-axis-label">Sal</text>
+                    <text x="110" y="175" class="chart-axis-label">Çar</text>
+                    <text x="165" y="175" class="chart-axis-label">Per</text>
+                    <text x="220" y="175" class="chart-axis-label">Cum</text>
+                    <text x="275" y="175" class="chart-axis-label">Cmrts</text>
+                    <text x="330" y="175" class="chart-axis-label">Paz</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>

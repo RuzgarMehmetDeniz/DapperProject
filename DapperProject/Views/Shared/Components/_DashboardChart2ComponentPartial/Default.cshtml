@@ -1,0 +1,205 @@
+﻿@using Microsoft.AspNetCore.Components
+@model DashboardChartViewModel
+@{
+    var revenues = Model.MonthlyRevenues;
+    double maxRev = revenues.Any() ? (double)revenues.Max(r => r.ToplamCiro) : 1;
+
+    // SVG boyutları — X label'ları için altta 30px boşluk, solda Y label için 50px
+    double svgXStart = 50, svgXEnd = 590;
+    double svgYTop = 20, svgYBottom = 170;
+    double svgW = 640, svgH = 210;
+    int monthCount = 12;
+    double xStep = (svgXEnd - svgXStart) / (monthCount - 1);
+
+    double GetX(int ay) => svgXStart + (ay - 1) * xStep;
+    double GetY(double val) => svgYBottom - (val / maxRev) * (svgYBottom - svgYTop);
+
+    var revDict = revenues.ToDictionary(r => r.Ay, r => (double)r.ToplamCiro);
+
+    var points = Enumerable.Range(1, monthCount)
+        .Select(ay => (X: GetX(ay), Y: GetY(revDict.ContainsKey(ay) ? revDict[ay] : 0)))
+        .ToList();
+
+    string BuildLinePath(List<(double X, double Y)> pts)
+    {
+        if (!pts.Any()) return "";
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"M{pts[0].X:F1},{pts[0].Y:F1}");
+        for (int i = 1; i < pts.Count; i++)
+        {
+            double cx1 = (pts[i - 1].X + pts[i].X) / 2;
+            sb.Append($" C{cx1:F1},{pts[i - 1].Y:F1} {cx1:F1},{pts[i].Y:F1} {pts[i].X:F1},{pts[i].Y:F1}");
+        }
+        return sb.ToString();
+    }
+
+    string linePath = BuildLinePath(points);
+    string areaPath = linePath + $" L{svgXEnd:F1},{svgYBottom:F1} L{svgXStart:F1},{svgYBottom:F1} Z";
+
+    string FmtMoney(double v) => v >= 1_000_000 ? $"${v / 1_000_000:F1}M"
+                               : v >= 1_000 ? $"${v / 1_000:F0}K"
+                               : $"${v:F0}";
+
+    // Y grid + label'lar
+    var yGridSvg = new System.Text.StringBuilder();
+    int yLevelCount = 5;
+    for (int lvl = 0; lvl <= yLevelCount; lvl++)
+    {
+        double fraction = (double)lvl / yLevelCount;
+        double yPos = svgYBottom - fraction * (svgYBottom - svgYTop);
+        double val = fraction * maxRev;
+        string lx = (svgXStart - 6).ToString("F0");
+        string ly = (yPos + 3).ToString("F1");
+        yGridSvg.Append($"<line x1=\"{svgXStart:F0}\" y1=\"{yPos:F1}\" x2=\"{svgXEnd:F0}\" y2=\"{yPos:F1}\" stroke=\"rgba(255,255,255,0.07)\" stroke-width=\"1\" stroke-dasharray=\"4 4\"/>");
+        yGridSvg.Append($"<text x=\"{lx}\" y=\"{ly}\" text-anchor=\"end\" font-size=\"9\" fill=\"rgba(255,255,255,0.4)\" font-family=\"sans-serif\">{FmtMoney(val)}</text>");
+    }
+
+    // X label'lar
+    var monthNames = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    var xLabelsSvg = new System.Text.StringBuilder();
+    for (int m = 1; m <= 12; m++)
+    {
+        string mx = GetX(m).ToString("F0");
+        string my = (svgYBottom + 18).ToString("F0");
+        xLabelsSvg.Append($"<text x=\"{mx}\" y=\"{my}\" text-anchor=\"middle\" font-size=\"9\" fill=\"rgba(255,255,255,0.4)\" font-family=\"sans-serif\">{monthNames[m - 1]}</text>");
+    }
+
+    // Noktalar
+    var dotsSvg = new System.Text.StringBuilder();
+    for (int m = 1; m <= 12; m++)
+    {
+        var pt = points[m - 1];
+        bool hasData = revDict.ContainsKey(m) && revDict[m] > 0;
+        string cx = pt.X.ToString("F1");
+        string cy = pt.Y.ToString("F1");
+        string fill = hasData ? "#00d4ff" : "rgba(255,255,255,0.15)";
+        string stroke = hasData ? "rgba(255,255,255,0.8)" : "none";
+        dotsSvg.Append($"<circle cx=\"{cx}\" cy=\"{cy}\" r=\"6\" fill=\"rgba(0,212,255,0.12)\" stroke=\"rgba(0,212,255,0.35)\" stroke-width=\"1\"/>");
+        dotsSvg.Append($"<circle cx=\"{cx}\" cy=\"{cy}\" r=\"3\" fill=\"{fill}\" stroke=\"{stroke}\" stroke-width=\"1\"/>");
+    }
+
+    // ── Donut ────────────────────────────────────────────────────────────
+    double circumference = 2 * Math.PI * 50;
+    double total = Model.TotalOrders > 0 ? Model.TotalOrders : 1;
+
+    var statusColors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Shipped"] = "url(#donutGrad1)",
+        ["Pending"] = "#f59e0b",
+        ["Cancelled"] = "#ef4444",
+        ["Complete"] = "url(#donutGrad1)",
+        ["Processing"] = "#8b5cf6",
+        ["Queued"] = "#3b82f6"
+    };
+    var legendColors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Shipped"] = "#00d4ff",
+        ["Pending"] = "#f59e0b",
+        ["Cancelled"] = "#ef4444",
+        ["Complete"] = "#00d4ff",
+        ["Processing"] = "#8b5cf6",
+        ["Queued"] = "#3b82f6"
+    };
+
+    var statusList = Model.StatusCounts.OrderByDescending(x => x.Adet).ToList();
+
+    string TotalLabel = total >= 1_000_000 ? $"{total / 1_000_000:F1}M"
+                      : total >= 1_000 ? $"{total / 1_000:F1}K"
+                      : $"{total:F0}";
+
+    var donutSvg = new System.Text.StringBuilder();
+    double dOffset = 0;
+    foreach (var s in statusList)
+    {
+        double dash = (s!.Adet / total) * circumference;
+        string color = statusColors.ContainsKey(s.Status) ? statusColors[s.Status] : "#6b7280";
+        donutSvg.Append($"<circle cx=\"65\" cy=\"65\" r=\"50\" fill=\"none\" stroke=\"{color}\" stroke-width=\"20\" stroke-dasharray=\"{dash:F1} {circumference:F2}\" stroke-dashoffset=\"{(-dOffset):F1}\" transform=\"rotate(-90 65 65)\" stroke-linecap=\"round\"/>");
+        dOffset += dash;
+    }
+}
+
+<div class="charts-grid">
+
+    <!-- ── Line Chart ── -->
+    <div class="card">
+        <div class="chart-container">
+            <div class="card-header" style="padding:0;margin-bottom:16px">
+                <div>
+                    <div class="card-title">Monthly Growth Trend</div>
+                    <div class="card-subtitle">Revenue over the past 12 months</div>
+                </div>
+                <span class="stat-chip">
+                    <span style="width:8px;height:8px;border-radius:2px;background:#00d4ff;display:inline-block"></span>
+                    Revenue
+                </span>
+            </div>
+
+            <div style="position:relative;width:100%">
+                <svg viewBox="0 0 640 210" style="width:100%;height:auto;display:block;overflow:visible">
+                    <defs>
+                        <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00d4ff" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                        <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.20" />
+                            <stop offset="100%" stop-color="#00d4ff" stop-opacity="0" />
+                        </linearGradient>
+                    </defs>
+
+                    @((MarkupString)yGridSvg.ToString())
+                    @((MarkupString)xLabelsSvg.ToString())
+
+                    <path d="@areaPath" fill="url(#areaGrad)" />
+                    <path d="@linePath" fill="none" stroke="url(#lineGrad)"
+                          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+                    @((MarkupString)dotsSvg.ToString())
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Donut Chart ── -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Order Status</div>
+                <div class="card-subtitle">Distribution by order status</div>
+            </div>
+        </div>
+        <div class="donut-wrap">
+            <div class="donut-svg-wrap">
+                <svg width="130" height="130" viewBox="0 0 130 130">
+                    <defs>
+                        <linearGradient id="donutGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00d4ff" />
+                            <stop offset="100%" stop-color="#10d983" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="65" cy="65" r="50" fill="none"
+                            stroke="rgba(255,255,255,0.05)" stroke-width="20" />
+                    @((MarkupString)donutSvg.ToString())
+                </svg>
+                <div class="donut-center">
+                    <div class="donut-center-val">@TotalLabel</div>
+                    <div class="donut-center-label">Total</div>
+                </div>
+            </div>
+
+            <div class="donut-legend">
+                @foreach (var s in statusList)
+                {
+                    double pct = Math.Round((s!.Adet / total) * 100, 1);
+                    string lgColor = legendColors.ContainsKey(s.Status) ? legendColors[s.Status] : "#6b7280";
+                    <div class="donut-legend-item">
+                        <div class="donut-legend-dot" style="background:@lgColor"></div>
+                        <span class="donut-legend-label">@s.Status</span>
+                        <span class="donut-legend-val">@pct%</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>

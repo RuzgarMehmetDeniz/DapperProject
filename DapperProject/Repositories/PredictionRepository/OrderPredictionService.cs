@@ -17,39 +17,47 @@ namespace DapperProject.Services
         {
             var results = new List<OrderPrediction>();
 
-            // Ciro pipeline
+            float baseYear = (float)historicalData.Min(d => d.Year);
+            double baseRevenue = (double)historicalData.Average(d => d.TotalRevenue);
+            double baseOrders = (double)historicalData.Average(d => d.TotalOrders);
+
+            // --- Ciro pipeline ---
             var revenueTrainData = _mlContext.Data.LoadFromEnumerable(
                 historicalData.Select(d => new OrderYearlyInput
                 {
-                    Year = (float)d.Year,
-                    Label = (float)d.TotalRevenue
+                    YearOffset = (float)(d.Year - baseYear),
+                    YearOffsetSquared = MathF.Pow((float)(d.Year - baseYear), 2),
+                    Label = (float)((double)d.TotalRevenue / baseRevenue)
                 })
             );
 
             var revenuePipeline = _mlContext.Transforms
-                .Concatenate("Features", nameof(OrderYearlyInput.Year))
-                .Append(_mlContext.Regression.Trainers.Sdca(
-                    labelColumnName: "Label",
-                    maximumNumberOfIterations: 100));
+                .Concatenate("Features",
+                    nameof(OrderYearlyInput.YearOffset),
+                    nameof(OrderYearlyInput.YearOffsetSquared))
+                .Append(_mlContext.Regression.Trainers.LbfgsPoissonRegression(
+                    labelColumnName: "Label"));
 
             var revenueModel = revenuePipeline.Fit(revenueTrainData);
             var revenuePredEngine = _mlContext.Model
                 .CreatePredictionEngine<OrderYearlyInput, RegressionPrediction>(revenueModel);
 
-            // Sipariş adedi pipeline
+            // --- Sipariş adedi pipeline ---
             var ordersTrainData = _mlContext.Data.LoadFromEnumerable(
                 historicalData.Select(d => new OrderYearlyInput
                 {
-                    Year = (float)d.Year,
-                    Label = (float)d.TotalOrders
+                    YearOffset = (float)(d.Year - baseYear),
+                    YearOffsetSquared = MathF.Pow((float)(d.Year - baseYear), 2),
+                    Label = (float)((double)d.TotalOrders / baseOrders)
                 })
             );
 
             var ordersPipeline = _mlContext.Transforms
-                .Concatenate("Features", nameof(OrderYearlyInput.Year))
-                .Append(_mlContext.Regression.Trainers.Sdca(
-                    labelColumnName: "Label",
-                    maximumNumberOfIterations: 100));
+                .Concatenate("Features",
+                    nameof(OrderYearlyInput.YearOffset),
+                    nameof(OrderYearlyInput.YearOffsetSquared))
+                .Append(_mlContext.Regression.Trainers.LbfgsPoissonRegression(
+                    labelColumnName: "Label"));
 
             var ordersModel = ordersPipeline.Fit(ordersTrainData);
             var ordersPredEngine = _mlContext.Model
@@ -59,16 +67,25 @@ namespace DapperProject.Services
 
             for (int i = 1; i <= howManyYears; i++)
             {
-                float targetYear = lastYear + i;
+                float offset = (lastYear + i) - baseYear;
 
-                var revPred = revenuePredEngine.Predict(new OrderYearlyInput { Year = targetYear });
-                var ordersPred = ordersPredEngine.Predict(new OrderYearlyInput { Year = targetYear });
+                var revPred = revenuePredEngine.Predict(new OrderYearlyInput
+                {
+                    YearOffset = offset,
+                    YearOffsetSquared = MathF.Pow(offset, 2)
+                });
+
+                var ordersPred = ordersPredEngine.Predict(new OrderYearlyInput
+                {
+                    YearOffset = offset,
+                    YearOffsetSquared = MathF.Pow(offset, 2)
+                });
 
                 results.Add(new OrderPrediction
                 {
-                    Year = (int)targetYear,
-                    PredictedRevenue = MathF.Max(0, revPred.Score),
-                    PredictedOrders = MathF.Max(0, ordersPred.Score)
+                    Year = (int)(lastYear + i),
+                    PredictedRevenue = MathF.Max(0, revPred.Score * (float)baseRevenue),
+                    PredictedOrders = MathF.Max(0, ordersPred.Score * (float)baseOrders)
                 });
             }
 
@@ -78,7 +95,8 @@ namespace DapperProject.Services
 
     public class OrderYearlyInput
     {
-        public float Year { get; set; }
+        public float YearOffset { get; set; }
+        public float YearOffsetSquared { get; set; }
         public float Label { get; set; }
     }
 
