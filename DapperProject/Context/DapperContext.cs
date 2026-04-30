@@ -16,7 +16,8 @@ namespace DapperProject.Context
 
         public IDbConnection CreateConnection()
         {
-            return new SqlConnection(_connectionString);
+            var connection = new SqlConnection(_connectionString);
+            return connection;
         }
     }
 }

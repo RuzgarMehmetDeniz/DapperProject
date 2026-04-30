@@ -55,14 +55,14 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const realLabels   = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (int)d.Year)));
-        const realRevenue  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (float)d.TotalRevenue)));
-        const predLabels   = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (int)d.Year)));
-        const predRevenue  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (float)d.PredictedRevenue)));
+        const realLabels  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (int)d.Year)));
+        const realRevenue = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.YearlyData).Select(d => (double)d.TotalRevenue)));
+        const predLabels  = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (int)d.Year)));
+        const predRevenue = @Html.Raw(Json.Serialize(((IEnumerable<dynamic>)ViewBag.Predictions).Select(d => (double)d.PredictedRevenue)));
 
-        const allLabels  = [...realLabels, ...predLabels];
-        const realData   = [...realRevenue, ...new Array(predLabels.length).fill(null)];
-        const predData   = [...new Array(realLabels.length).fill(null), ...predRevenue];
+        const allLabels = [...realLabels, ...predLabels];
+        const realData  = [...realRevenue, ...new Array(predLabels.length).fill(null)];
+        const predData  = [...new Array(realLabels.length).fill(null), ...predRevenue];
 
         new Chart(document.getElementById('predictionChart'), {
             type: 'line',

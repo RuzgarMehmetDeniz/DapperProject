@@ -115,22 +115,30 @@ namespace DapperProject.Repositories.OrderRepository
                 LEFT JOIN Customers c ON o.CustomerId = c.CustomerId
                 ORDER BY o.OrderId DESC";
             using var connection = _context.CreateConnection();
+            var command = new CommandDefinition(      // <-- bunu mutlaka kullan
+                query,
+                commandTimeout: 300                   // <-- 300 saniye
+            );
             return await connection.QueryFirstOrDefaultAsync<LastOrderDto>(query);
         }
         public async Task<List<OrderYearlyData>> GetYearlyOrderDataAsync()
         {
             string query = @"
         SELECT 
-            YEAR(o.OrderDate)            AS Year,
-            SUM(o.Quantity * p.Price)    AS TotalRevenue,
-            COUNT(o.OrderId)             AS TotalOrders
+            YEAR(o.OrderDate)                         AS Year,
+            SUM(CAST(o.Quantity AS BIGINT) * p.Price) AS TotalRevenue,
+            COUNT(o.OrderId)                          AS TotalOrders
         FROM Orders o
         LEFT JOIN Product p ON o.ProductId = p.ProductID
         GROUP BY YEAR(o.OrderDate)
         ORDER BY Year";
 
             using var connection = _context.CreateConnection();
-            var values = await connection.QueryAsync<OrderYearlyData>(query);
+            var command = new CommandDefinition(      // <-- bunu mutlaka kullan
+                query,
+                commandTimeout: 300                   // <-- 300 saniye
+            );
+            var values = await connection.QueryAsync<OrderYearlyData>(command);
             return values.ToList();
         }
     }

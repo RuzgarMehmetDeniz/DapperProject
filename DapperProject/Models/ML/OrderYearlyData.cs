@@ -2,8 +2,8 @@
 {
     public class OrderYearlyData
     {
-        public float Year { get; set; }
-        public float TotalRevenue { get; set; }
-        public float TotalOrders { get; set; }
+        public int Year { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public int TotalOrders { get; set; }
     }
 }

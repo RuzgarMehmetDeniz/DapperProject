@@ -19,31 +19,43 @@ namespace DapperProject.Services
 
             // Ciro pipeline
             var revenueTrainData = _mlContext.Data.LoadFromEnumerable(
-                historicalData.Select(d => new OrderYearlyInput { Year = d.Year, Label = d.TotalRevenue })
+                historicalData.Select(d => new OrderYearlyInput
+                {
+                    Year = (float)d.Year,
+                    Label = (float)d.TotalRevenue
+                })
             );
+
             var revenuePipeline = _mlContext.Transforms
                 .Concatenate("Features", nameof(OrderYearlyInput.Year))
                 .Append(_mlContext.Regression.Trainers.Sdca(
                     labelColumnName: "Label",
                     maximumNumberOfIterations: 100));
+
             var revenueModel = revenuePipeline.Fit(revenueTrainData);
             var revenuePredEngine = _mlContext.Model
                 .CreatePredictionEngine<OrderYearlyInput, RegressionPrediction>(revenueModel);
 
             // Sipariş adedi pipeline
             var ordersTrainData = _mlContext.Data.LoadFromEnumerable(
-                historicalData.Select(d => new OrderYearlyInput { Year = d.Year, Label = d.TotalOrders })
+                historicalData.Select(d => new OrderYearlyInput
+                {
+                    Year = (float)d.Year,
+                    Label = (float)d.TotalOrders
+                })
             );
+
             var ordersPipeline = _mlContext.Transforms
                 .Concatenate("Features", nameof(OrderYearlyInput.Year))
                 .Append(_mlContext.Regression.Trainers.Sdca(
                     labelColumnName: "Label",
                     maximumNumberOfIterations: 100));
+
             var ordersModel = ordersPipeline.Fit(ordersTrainData);
             var ordersPredEngine = _mlContext.Model
                 .CreatePredictionEngine<OrderYearlyInput, RegressionPrediction>(ordersModel);
 
-            float lastYear = historicalData.Max(d => d.Year);
+            float lastYear = (float)historicalData.Max(d => d.Year);
 
             for (int i = 1; i <= howManyYears; i++)
             {
