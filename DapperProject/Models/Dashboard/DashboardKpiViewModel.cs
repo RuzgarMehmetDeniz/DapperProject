@@ -7,7 +7,7 @@
         public decimal RevenueThisMonth { get; set; }
         public decimal RevenueLastMonth { get; set; }
         public decimal MonthlyGrowthPercent { get; set; }
-        public decimal AverageOrderValue { get; set; }
+        public int TotalCustomers { get; set; }
         public int NewOrdersToday { get; set; }
     }
 }

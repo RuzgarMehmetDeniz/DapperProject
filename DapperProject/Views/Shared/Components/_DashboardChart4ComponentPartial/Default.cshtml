@@ -13,8 +13,8 @@
     <div class="card" style="grid-column: 1; grid-row: span 2;">
         <div class="card-header">
             <div>
-                <div class="card-title">Recent Orders</div>
-                <div class="card-subtitle">Last 10 orders</div>
+                <div class="card-title">Son Siparişler</div>
+                <div class="card-subtitle">Son 10 Siparişler</div>
             </div>
             <button class="btn btn-ghost btn-sm" asp-controller="Orders" asp-action="Index">Hepsi</button>
         </div>
@@ -35,22 +35,31 @@
                     @foreach (var order in orders)
                     {
                         string status = order.Status?.ToString() ?? "";
+
                         string badgeClass = status.ToLower() switch
                         {
-                            "complete" or "completed" => "badge badge-success",
-                            "processing" or "pending" => "badge badge-info",
-                            "queued" => "badge badge-warning",
-                            "cancelled" or "failed" => "badge badge-danger",
+                            "shipped" => "badge badge-success",
+                            "pending" => "badge badge-warning",
+                            "cancelled" => "badge badge-danger",
                             _ => "badge badge-info"
                         };
+
+                        string statusLabel = status.ToLower() switch
+                        {
+                            "shipped" => "Kargoya Verildi",
+                            "pending" => "Beklemede",
+                            "cancelled" => "İptal Edildi",
+                            _ => status
+                        };
+
                         <tr>
                             <td class="td-primary">#@order.OrderId</td>
                             <td>@order.CustomerId</td>
                             <td>@order.ProductId</td>
                             <td>@order.Quantity</td>
                             <td>@($"{order.Price:N2} ₺")</td>
-                            <td><span class="@badgeClass">@status</span></td>
-                            <td>@($"{order.OrderDate:dd.MM.yyyy}")</td>
+                            <td><span class="@badgeClass">@statusLabel</span></td>
+                            <td>@order.OrderDate.ToString("dd.MM.yyyy")</td>
                         </tr>
                     }
                 </tbody>
