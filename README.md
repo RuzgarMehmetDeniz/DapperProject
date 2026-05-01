@@ -2,8 +2,6 @@
 
 # 🧠 NexusBI
 
-**Kurumsal düzeyde iş zekası paneli — gerçek zamanlı veri yönetimi, satış analizi ve makine öğrenmesi destekli tahminleme.**
-
 <br/>
 
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-MVC_.NET_8-512BD4?style=for-the-badge&logo=dotnet)
